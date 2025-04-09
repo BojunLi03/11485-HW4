@@ -213,6 +213,11 @@ class Conv2DSubsampling(torch.nn.Module):
             torch.Tensor: Downsampled output of shape (batch_size, new_seq_len, output_dim).
         """
         x = x.unsqueeze(1)  # Add a channel dimension for Conv2D
+
+        ## Convert to half precision if needed, change if needed later
+        x = x.half()
+
+        
         x = self.conv(x)
         
         # TODO: Apply frequency pooling and reshape
