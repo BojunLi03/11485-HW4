@@ -118,7 +118,6 @@ class ASRTrainer(BaseTrainer):
                     targets_shifted, 
                     feat_lengths, 
                     transcript_lengths,
-                    return_att=True
                 )
                 #NotImplementedError
                 
@@ -415,7 +414,6 @@ class ASRTrainer(BaseTrainer):
                 encoder_output, pad_mask_src, _, _ = self.model.encode(
                     feats, 
                     feat_lengths, 
-                    return_att=False
                 )
                 #NotImplementedError, NotImplementedError, NotImplementedError, NotImplementedError
                 
