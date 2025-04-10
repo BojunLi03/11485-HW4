@@ -161,8 +161,11 @@ class ASRTrainer(BaseTrainer):
             # TODO: Calculate CTC loss if needed
             if self.ctc_weight > 0:
                 print("Keys of ctc_inputs:", ctc_inputs.keys())
+                log_probs = ctc_inputs["log_probs"].log_softmax(2).transpose(0, 1)
+
                 ctc_loss = self.ctc_criterion(
-                    ctc_inputs.log_softmax(2).transpose(0, 1),
+                    #ctc_inputs.log_softmax(2).transpose(0, 1),
+                    log_probs,
                     targets_golden,
                     feat_lengths,
                     transcript_lengths
