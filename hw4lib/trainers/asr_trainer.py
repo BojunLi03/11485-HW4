@@ -65,6 +65,7 @@ class ASRTrainer(BaseTrainer):
         self.config_file = config_file
         self.device = device if device is not None else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
+        self.scaler = torch.cuda.amp.GradScaler()
 
         # TODO: Initialize CE loss
         # How would you set the ignore_index? 
@@ -194,7 +195,7 @@ class ASRTrainer(BaseTrainer):
             loss = loss / self.config['training']['gradient_accumulation_steps']
 
             # TODO: Backpropagate the loss
-            self.scaler = self.scaler if hasattr(self, 'scaler') else torch.cuda.amp.GradScaler()
+            #self.scaler = self.scaler if hasattr(self, 'scaler') else torch.cuda.amp.GradScaler()
 
             # Only update weights after accumulating enough gradients
             if (i + 1) % self.config['training']['gradient_accumulation_steps'] == 0:
