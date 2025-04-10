@@ -140,6 +140,7 @@ class ASRTrainer(BaseTrainer):
             targets_golden = targets_golden.to(self.device)
             feat_lengths = feat_lengths.to(self.device)
             transcript_lengths = transcript_lengths.to(self.device)
+            self.model.to(self.device)
             seq_out, curr_att, ctc_inputs = self.model(
                 feats, 
                 targets_shifted, 
