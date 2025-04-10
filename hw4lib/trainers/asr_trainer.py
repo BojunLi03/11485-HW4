@@ -294,6 +294,8 @@ class ASRTrainer(BaseTrainer):
         #raise NotImplementedError # Remove once implemented
 
         # Set max transcript length
+        train_dataloader.to_device(self.device)
+        val_dataloader.to_device(self.device)
         self.text_max_len = max(val_dataloader.dataset.text_max_len, train_dataloader.dataset.text_max_len)
 
         # Training loop
