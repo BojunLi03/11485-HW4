@@ -289,7 +289,7 @@ class SequenceGenerator:
             is_eos = (next_tokens == self.tokenizer.eos_id)
             finished = finished | is_eos
         # make x a tensor
-        x = torch.stack([s for s in x], dim=0) if isinstance(x, list) else x
+        x = torch.tensor(x) 
         return x, scores
 
     @staticmethod
