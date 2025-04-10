@@ -346,6 +346,8 @@ class EncoderDecoderTransformer(nn.Module):
 
         # TODO: Apply speech embedding
         x_enc, x_enc_lengths = self.source_embedding(padded_sources, source_lengths)
+        x_enc.to(padded_sources.device)
+        x_enc_lengths.to(padded_sources.device)
         #NotImplementedError, NotImplementedError
         
         # TODO: Apply positional encoding if not skipped
