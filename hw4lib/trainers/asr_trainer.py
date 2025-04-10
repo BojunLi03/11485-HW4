@@ -134,6 +134,11 @@ class ASRTrainer(BaseTrainer):
                 #print(feat_lengths.dtype)
                 #print(transcript_lengths.dtype)
             feats, targets_shifted, targets_golden, feat_lengths, transcript_lengths = batch
+            feats = feats.to(self.device)
+            targets_shifted = targets_shifted.to(self.device)
+            targets_golden = targets_golden.to(self.device)
+            feat_lengths = feat_lengths.to(self.device)
+            transcript_lengths = transcript_lengths.to(self.device)
             seq_out, curr_att, ctc_inputs = self.model(
                 feats, 
                 targets_shifted, 
