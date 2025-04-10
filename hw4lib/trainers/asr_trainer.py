@@ -490,7 +490,7 @@ class ASRTrainer(BaseTrainer):
                     scores = scores[:, 0]
                 else:
                     # TODO: Generate sequences using greedy search
-                    seqs, scores = generator.generate(
+                    seqs, scores = generator.generate_greedy(
                         prompts,
                         encoder_output,
                         pad_mask_src,
