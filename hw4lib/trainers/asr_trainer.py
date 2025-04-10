@@ -490,13 +490,22 @@ class ASRTrainer(BaseTrainer):
                     scores = scores[:, 0]
                 else:
                     # TODO: Generate sequences using greedy search
+                    """
+                    def generate_greedy(
+                            self,
+                            x: torch.Tensor,
+                            temperature: float = 1.0,
+                            repeat_penalty: float = 1.0
+                    ) -> Tuple[torch.Tensor, torch.Tensor]:
+                    """
+
+                    temp = recognition_config['temperature'] if recognition_config is not None else 1.0
+                    pent = recognition_config['repeat_penalty'] if recognition_config is not None else 1.0
                     seqs, scores = generator.generate_greedy(
                         prompts,
-                        encoder_output,
-                        pad_mask_src,
-                        recognition_config['temperature'],
-                        recognition_config['repeat_penalty'],
-                        recognition_config['num_batches']
+                        temperature=temp,
+                        repeat_penalty=pent
+
                     )
                     #NotImplementedError, NotImplementedError
                     #raise NotImplementedError # Remove if you implemented the greedy search method
