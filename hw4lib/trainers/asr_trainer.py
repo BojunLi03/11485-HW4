@@ -196,6 +196,7 @@ class ASRTrainer(BaseTrainer):
 
             # TODO: Backpropagate the loss
             #self.scaler = self.scaler if hasattr(self, 'scaler') else torch.cuda.amp.GradScaler()
+            self.scaler.scale(loss).backward()
 
             # Only update weights after accumulating enough gradients
             if (i + 1) % self.config['training']['gradient_accumulation_steps'] == 0:
