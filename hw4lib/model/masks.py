@@ -26,7 +26,8 @@ def PadMask(padded_input, input_lengths):
             - non-padding positions are marked with False.
     """
     # TODO: Implement PadMask
-    
+    padded_input = padded_input.to(device=input_lengths.device)
+    input_lengths = input_lengths.to(device=padded_input.device)
     N, max_len = padded_input.shape[:2]
     
     # Create range tensor [0, 1, ..., max_len-1]
@@ -36,6 +37,7 @@ def PadMask(padded_input, input_lengths):
     positions = positions_1d[None, :].expand(N, -1)
     
     mask = positions >= input_lengths[:, None]
+    
     
     return mask
 
