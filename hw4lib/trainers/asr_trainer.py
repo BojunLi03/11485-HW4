@@ -110,6 +110,7 @@ class ASRTrainer(BaseTrainer):
         for i, batch in enumerate(dataloader):
             # TODO: Unpack batch and move to device
             feats, targets_shifted, targets_golden, feat_lengths, transcript_lengths = batch
+            print(feats.device, self.model.device)
             seq_out, curr_att, ctc_inputs = self.model(
                     feats, 
                     targets_shifted, 
