@@ -173,7 +173,8 @@ class ASRTrainer(BaseTrainer):
                     #ctc_inputs.log_softmax(2).transpose(0, 1),
                     log_probs,
                     targets_golden,
-                    feat_lengths,
+                    #feat_lengths,
+                    ctc_inputs['lengths'],
                     transcript_lengths
                 )
                 loss = ce_loss + self.ctc_weight * ctc_loss
