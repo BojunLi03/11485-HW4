@@ -113,12 +113,16 @@ class ASRTrainer(BaseTrainer):
 
             with torch.autocast(device_type=self.device, dtype=torch.float16):
                 # TODO: get raw predictions and attention weights and ctc inputs from model
+                print(seq_out.dtype)
+                print(targets_shifted.dtype)
                 seq_out, curr_att, ctc_inputs = self.model(
                     feats, 
                     targets_shifted, 
                     feat_lengths, 
                     transcript_lengths,
                 )
+                
+                
                 #NotImplementedError
                 
                 # Update running_att with the latest attention weights
