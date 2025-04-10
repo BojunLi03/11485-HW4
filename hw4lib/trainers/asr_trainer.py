@@ -58,6 +58,14 @@ class ASRTrainer(BaseTrainer):
         super().__init__(model, tokenizer, config, run_name, config_file, device)
 
         # TODO: Implement the __init__ method
+        self.model = model
+        self.tokenizer = tokenizer
+        self.config = config
+        self.run_name = run_name
+        self.config_file = config_file
+        self.device = device if device is not None else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.to(self.device)
+
         
         # TODO: Initialize CE loss
         # How would you set the ignore_index? 
