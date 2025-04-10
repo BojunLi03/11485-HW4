@@ -66,7 +66,6 @@ class ASRTrainer(BaseTrainer):
         self.device = device if device is not None else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
 
-        
         # TODO: Initialize CE loss
         # How would you set the ignore_index? 
         # Use value in config to set the label_smoothing argument
@@ -117,6 +116,7 @@ class ASRTrainer(BaseTrainer):
 
         for i, batch in enumerate(dataloader):
             # TODO: Unpack batch and move to device
+            """
             feats, targets_shifted, targets_golden, feat_lengths, transcript_lengths = batch
             print(feats.device, self.model.device)
             seq_out, curr_att, ctc_inputs = self.model(
@@ -125,7 +125,7 @@ class ASRTrainer(BaseTrainer):
                     feat_lengths, 
                     transcript_lengths,
                 )
-            break
+            break"""
 
             with torch.autocast(device_type=self.device, dtype=torch.float16):
                 # TODO: get raw predictions and attention weights and ctc inputs from model
