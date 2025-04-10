@@ -127,44 +127,44 @@ class ASRTrainer(BaseTrainer):
                 )
             break"""
 
-            with torch.autocast(device_type=self.device, dtype=torch.float16):
+            #with torch.autocast(device_type=self.device, dtype=torch.float16):
                 # TODO: get raw predictions and attention weights and ctc inputs from model
                 #print(feats.dtype)
                 #print(targets_shifted.dtype)
                 #print(feat_lengths.dtype)
                 #print(transcript_lengths.dtype)
-                feats, targets_shifted, targets_golden, feat_lengths, transcript_lengths = batch
-                seq_out, curr_att, ctc_inputs = self.model(
-                    feats, 
-                    targets_shifted, 
-                    feat_lengths, 
-                    transcript_lengths,
+            feats, targets_shifted, targets_golden, feat_lengths, transcript_lengths = batch
+            seq_out, curr_att, ctc_inputs = self.model(
+                feats, 
+                targets_shifted, 
+                feat_lengths, 
+                transcript_lengths,
+            )
+                
+                
+            #NotImplementedError
+            
+            # Update running_att with the latest attention weights
+            running_att = curr_att
+            
+            # TODO: Calculate CE loss
+            ce_loss = self.ce_criterion(
+                seq_out.view(-1, seq_out.size(-1)), 
+                targets_shifted.view(-1)
+            )
+            
+            # TODO: Calculate CTC loss if needed
+            if self.ctc_weight > 0:
+                ctc_loss = self.ctc_criterion(
+                    ctc_inputs.log_softmax(2).transpose(0, 1),
+                    targets_golden,
+                    feat_lengths,
+                    transcript_lengths
                 )
-                
-                
-                #NotImplementedError
-                
-                # Update running_att with the latest attention weights
-                running_att = curr_att
-                
-                # TODO: Calculate CE loss
-                ce_loss = self.ce_criterion(
-                    seq_out.view(-1, seq_out.size(-1)), 
-                    targets_shifted.view(-1)
-                )
-                
-                # TODO: Calculate CTC loss if needed
-                if self.ctc_weight > 0:
-                    ctc_loss = self.ctc_criterion(
-                        ctc_inputs.log_softmax(2).transpose(0, 1),
-                        targets_golden,
-                        feat_lengths,
-                        transcript_lengths
-                    )
-                    loss = ce_loss + self.ctc_weight * ctc_loss
-                else:
-                    ctc_loss = torch.tensor(0.0)
-                    loss = ce_loss
+                loss = ce_loss + self.ctc_weight * ctc_loss
+            else:
+                ctc_loss = torch.tensor(0.0)
+                loss = ce_loss
 
             # Calculate metrics
             batch_tokens = transcript_lengths.sum().item()
