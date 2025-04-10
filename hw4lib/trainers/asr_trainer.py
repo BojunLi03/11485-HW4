@@ -454,6 +454,10 @@ class ASRTrainer(BaseTrainer):
                 # TODO: Handle both cases where targets may or may not be None (val set v. test set) 
                 feats, _, targets_golden, feat_lengths, _ = batch
                 
+                feats = feats.to(self.device)
+                feat_lengths = feat_lengths.to(self.device)
+                if targets_golden is not None:
+                    targets_golden = targets_golden.to(self.device)
                 # TODO: Encode speech features to hidden states
                 encoder_output, pad_mask_src, _, _ = self.model.encode(
                     feats, 
