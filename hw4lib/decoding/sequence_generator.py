@@ -191,7 +191,8 @@ class SequenceGenerator:
             is_eos = (next_tokens == self.tokenizer.eos_id)
             finished = finished | is_eos
         # Post-process sequences to remove content after EOS token
-        x = self.post_process_sequence(x, self.tokenizer)
+        #x = self.post_process_sequence(x, self.tokenizer)
+        x = torch.tensor(x)  # Ensure x is a tensor
         return x, scores
 
     def generate_beam(
