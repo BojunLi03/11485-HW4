@@ -141,8 +141,8 @@ class ASRTrainer(BaseTrainer):
             transcript_lengths = transcript_lengths.to(self.device)
             seq_out, curr_att, ctc_inputs = self.model(
                 feats, 
-                feat_lengths, 
                 targets_shifted, 
+                feat_lengths, 
                 transcript_lengths,
             )
                 
