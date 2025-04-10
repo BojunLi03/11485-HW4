@@ -162,6 +162,10 @@ class ASRTrainer(BaseTrainer):
             if self.ctc_weight > 0:
                 print("Keys of ctc_inputs:", ctc_inputs.keys())
                 log_probs = ctc_inputs["log_probs"].log_softmax(2).transpose(0, 1)
+                print("log_probs shape:", log_probs.shape)
+                print("targets_golden shape:", targets_golden.shape)
+                print("transcript_lengths shape:", transcript_lengths.shape)
+                print("feat_lengths shape:", feat_lengths.shape)
 
                 ctc_loss = self.ctc_criterion(
                     #ctc_inputs.log_softmax(2).transpose(0, 1),
