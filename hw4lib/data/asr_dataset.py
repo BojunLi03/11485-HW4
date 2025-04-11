@@ -223,11 +223,13 @@ class ASRDataset(Dataset):
         
         if self.partition != "test-clean":
             # Verify data alignment
-            print(f"Number of feature files: {len(self.fbank_files)}")
-            print(f"Number of text files: {len(self.text_files)}")
-            print(f"Number of loaded features: {len(self.feats)}")
-            print(f"Number of loaded shifted transcripts: {len(self.transcripts_shifted)}")
-            print(f"Number of loaded golden transcripts: {len(self.transcripts_golden)}")
+            #print(f"Number of feature files: {len(self.fbank_files)}")
+            #print(f"Number of text files: {len(self.text_files)}")
+            #print(f"Number of loaded features: {len(self.feats)}")
+            #print(f"Number of loaded shifted transcripts: {len(self.transcripts_shifted)}")
+            #print(f"Number of loaded golden transcripts: {len(self.transcripts_golden)}")
+            #print(f"Sample transcript IDs: {self.transcripts_golden[0]}")
+            #print(f"Decoded: {self.tokenizer.decode(self.transcripts_golden[0])}")
             if not (len(self.feats) == len(self.transcripts_shifted) == len(self.transcripts_golden)):
                 raise ValueError("Features and transcripts are misaligned")
 

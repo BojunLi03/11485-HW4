@@ -66,6 +66,7 @@ class ASRTrainer(BaseTrainer):
         self.device = device if device is not None else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model.to(self.device)
         self.scaler = torch.cuda.amp.GradScaler()
+        self.debug_output = True
 
         # TODO: Initialize CE loss
         # How would you set the ignore_index? 
@@ -201,6 +202,8 @@ class ASRTrainer(BaseTrainer):
 
             # Only update weights after accumulating enough gradients
             if (i + 1) % self.config['training']['gradient_accumulation_steps'] == 0:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
+
                 self.scaler.step(self.optimizer)
                 if not isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
                     self.scheduler.step()
@@ -269,7 +272,10 @@ class ASRTrainer(BaseTrainer):
         # TODO: Extract references and hypotheses from results
         references = [res['target'] for res in results if 'target' in res]
         hypotheses = [res['generated'] for res in results]
-        
+        if self.debug_output is True:
+            print("References:", references)
+            print("Hypotheses:", hypotheses)
+        self.debug_output = False     
         # Calculate metrics on full batch
         metrics = self._calculate_asr_metrics(references, hypotheses)
         
@@ -310,8 +316,9 @@ class ASRTrainer(BaseTrainer):
             train_metrics, train_attn = self._train_epoch(train_dataloader)
             
             # TODO: Validate
+            self.debug_output = True
             val_metrics, val_results = self._validate_epoch(val_dataloader)
-
+            
             # Step ReduceLROnPlateau scheduler with validation loss
             if isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
                 self.scheduler.step(val_metrics['cer'])

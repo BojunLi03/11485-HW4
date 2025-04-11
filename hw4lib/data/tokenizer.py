@@ -166,6 +166,11 @@ class H4Tokenizer:
         print(f"{'Token IDs:':<12} {ids}")
         print(f"{'Decoded:':<12} {decoded}")
         print("="*80)
+        #test_text = "CHAPTER ONE"
+        #tokens2 = self.tokenizer.encode(test_text)
+        #decoded2 = self.tokenizer.decode(tokens2)
+        #print(f"Tokenization test: '{test_text}' -> {tokens2} -> '{decoded2}'")
+        #print(f"Special tokens - SOS: {self.tokenizer.sos_id}, EOS: {self.tokenizer.eos_id}, PAD: {self.tokenizer.pad_id}")
 
     def get_avg_chars_per_token(self, token_ids: List[int], skip_special_tokens: bool = True) -> float:
         """
