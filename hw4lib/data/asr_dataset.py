@@ -153,7 +153,7 @@ class ASRDataset(Dataset):
         for i in tqdm(range(self.length)):
             # TODO: Load features
             # Features are of shape (num_feats, time)
-            feat = np.load(os.path.join(self.fbank_dir, self.fbank_files[i]))
+            feat = np.load(os.path.join(self.fbank_dir, self.fbank_files[i]), allow_pickle=True)
             feat = torch.FloatTensor(feat)  # (num_feats, time)
             #feat = feat.transpose(0, 1)     # (time, num_feats)
             #feat = feat.transpose(0, 1)     # (num_feats, time)
@@ -202,14 +202,20 @@ class ASRDataset(Dataset):
                 self.text_max_len = max(self.text_max_len, len(tokenized)+1)
                 
                 # TODO: Create shifted and golden versions by adding sos and eos tokens   
-                self.transcripts_shifted.append( 
-                    torch.cat((torch.tensor([self.sos_token]), torch.tensor(tokenized)))
+                #self.transcripts_shifted.append( 
+                #    torch.cat((torch.tensor([self.sos_token]), torch.tensor(tokenized)))
+                #)
+                self.transcripts_shifted.append(
+                    [self.sos_token] + tokenized  # Store as list, not tensor
                 )
-                self.transcripts_shifted = [t.tolist() for t in self.transcripts_shifted] # Convert to list
-                self.transcripts_golden.append( 
-                    torch.cat((torch.tensor(tokenized), torch.tensor([self.eos_token])))
+                self.transcripts_golden.append(
+                    tokenized + [self.eos_token]  # Store as list, not tensor
                 )
-                self.transcripts_golden = [t.tolist() for t in self.transcripts_golden] # Convert to list
+                #self.transcripts_shifted = [t.tolist() for t in self.transcripts_shifted] # Convert to list
+                #self.transcripts_golden.append( 
+                #    torch.cat((torch.tensor(tokenized), torch.tensor([self.eos_token])))
+                #)
+                #self.transcripts_golden = [t.tolist() for t in self.transcripts_golden] # Convert to list
 
         # Calculate average characters per token
         # DO NOT MODIFY 
@@ -217,6 +223,11 @@ class ASRDataset(Dataset):
         
         if self.partition != "test-clean":
             # Verify data alignment
+            print(f"Number of feature files: {len(self.fbank_files)}")
+            print(f"Number of text files: {len(self.text_files)}")
+            print(f"Number of loaded features: {len(self.feats)}")
+            print(f"Number of loaded shifted transcripts: {len(self.transcripts_shifted)}")
+            print(f"Number of loaded golden transcripts: {len(self.transcripts_golden)}")
             if not (len(self.feats) == len(self.transcripts_shifted) == len(self.transcripts_golden)):
                 raise ValueError("Features and transcripts are misaligned")
 
@@ -288,7 +299,8 @@ class ASRDataset(Dataset):
             # TODO: Get transcripts for non-test partitions
             shifted_transcript = torch.LongTensor(self.transcripts_shifted[idx])  # (time)
             golden_transcript  = torch.LongTensor(self.transcripts_golden[idx])   # (time)
-
+            #shifted_transcript = self.transcripts_shifted[idx]#.tolist()  
+            #golden_transcript = self.transcripts_golden[idx]#.tolist()
         #raise NotImplementedError # Remove once implemented
         return feat, shifted_transcript, golden_transcript
     """
@@ -373,13 +385,14 @@ class ASRDataset(Dataset):
         padded_feats = padded_feats.permute(0, 2, 1)
         """
 
-        padded_feats = pad_sequence(
-            batch_feats_transposed,
-            batch_first=True,
-            padding_value=self.pad_token
-        )
+        #padded_feats = pad_sequence(
+        #    batch_feats_transposed,
+        #    batch_first=True,
+        #    padding_value=self.pad_token
+        #)
 
         # Handle transcripts
+        """
         padded_shifted, padded_golden, transcript_lengths = None, None, None
         if self.partition != "test-clean":
             # TODO: Collect shifted and golden transcripts from the batch into a list of tensors (B x T)  
@@ -401,6 +414,32 @@ class ASRDataset(Dataset):
             )
             #torch.full((len(batch), max_transcript_len), self.pad_token, dtype=torch.long)
             padded_golden = torch.nn.utils.rnn.pad_sequence(
+                batch_golden,
+                batch_first=True,
+                padding_value=self.pad_token
+            )"""
+        # Pad features
+        padded_feats = pad_sequence(
+            [feat.permute(1, 0) for feat in batch_feats],
+            batch_first=True,
+            padding_value=self.pad_token
+        )
+        
+        # Handle transcripts
+        padded_shifted, padded_golden, transcript_lengths = None, None, None
+        if self.partition != "test-clean":
+            # Convert lists to tensors here
+            batch_shifted = [torch.LongTensor(item[1]) for item in batch]
+            batch_golden = [torch.LongTensor(item[2]) for item in batch]
+            
+            transcript_lengths = torch.tensor([len(t) for t in batch_shifted])
+            
+            padded_shifted = pad_sequence(
+                batch_shifted,
+                batch_first=True,
+                padding_value=self.pad_token
+            )
+            padded_golden = pad_sequence(
                 batch_golden,
                 batch_first=True,
                 padding_value=self.pad_token
