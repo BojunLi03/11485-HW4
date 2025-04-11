@@ -195,11 +195,11 @@ class ASRDataset(Dataset):
                 self.transcripts_shifted.append( 
                     torch.cat((torch.tensor([self.sos_token]), torch.tensor(tokenized)))
                 )
-                #self.transcripts_shifted = [t.tolist() for t in self.transcripts_shifted] # Convert to list
+                self.transcripts_shifted = [t.tolist() for t in self.transcripts_shifted] # Convert to list
                 self.transcripts_golden.append( 
                     torch.cat((torch.tensor(tokenized), torch.tensor([self.eos_token])))
                 )
-                #self.transcripts_golden = [t.tolist() for t in self.transcripts_golden] # Convert to list
+                self.transcripts_golden = [t.tolist() for t in self.transcripts_golden] # Convert to list
 
         # Calculate average characters per token
         # DO NOT MODIFY 
