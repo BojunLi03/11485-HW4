@@ -177,10 +177,15 @@ class SequenceGenerator:
                 break
 
             # Get logits and apply filtering
-            next_scores = self.score_fn(x)
+            #print(f"[Debug] x shape: {x.shape}")
+            next_scores = self.score_fn(x[:, -1].unsqueeze(1))
+            #print(f"[Debug] logits shape: {next_scores.shape}")
+
             filtered_logits = self._filter_logits(next_scores, temperature, top_k=0, top_p=1.0)
             filtered_logits = self._apply_repeat_penalty(filtered_logits, x, repeat_penalty)
             log_probs = torch.log_softmax(filtered_logits, dim=-1)
+            #print("[Debug] top 5 token IDs:", torch.topk(log_probs, 5, dim=-1).indices[0].tolist())
+
             next_tokens = torch.argmax(log_probs, dim=-1)  # (batch_size,)
             token_scores = log_probs.gather(1, next_tokens.unsqueeze(1)).squeeze(1)  # (batch_size,)
             # Update scores only for unfinished sequences
@@ -219,8 +224,9 @@ class SequenceGenerator:
         finished = torch.zeros(batch_size * beam_width, dtype=torch.bool, device=device)
 
         for step in range(self.max_length - seq_len):
-            logits = self.score_fn(x)  # (batch_size * beam_width, vocab_size)
-
+            print(f"[Debug] x shape: {x.shape}")
+            logits = self.score_fn(x)
+            print(f"[Debug] logits shape: {logits.shape}")
             # Apply temperature and filtering
             logits = self._filter_logits(logits, temperature)
             logits = self._apply_repeat_penalty(logits, x, repeat_penalty)
