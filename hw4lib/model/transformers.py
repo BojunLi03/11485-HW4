@@ -492,13 +492,13 @@ class EncoderDecoderTransformer(nn.Module):
 
         # TODO: Encode the source sequence
         encoder_output, pad_mask_src, enc_running_att, ctc_inputs = self.encode(padded_sources, source_lengths)
-        print(encoder_output)
-        print("pass")
+        #print(encoder_output)
+        #print("pass")
         
         # TODO: Decode using encoder output
         seq_out, dec_running_att = self.decode(padded_targets, encoder_output, target_lengths, pad_mask_src)
         #NotImplementedError, NotImplementedError
-        print("pass decode")
+        #print("pass decode")
         
         # Combine attention dictionaries
         running_att = {**enc_running_att, **dec_running_att}
