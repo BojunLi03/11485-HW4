@@ -178,7 +178,7 @@ class SequenceGenerator:
 
             # Get logits and apply filtering
             #print(f"[Debug] x shape: {x.shape}")
-            next_scores = self.score_fn(x[:, -1].unsqueeze(1))
+            next_scores = self.score_fn(x)
             #print(f"[Debug] logits shape: {next_scores.shape}")
 
             filtered_logits = self._filter_logits(next_scores, temperature, top_k=0, top_p=1.0)
@@ -212,21 +212,37 @@ class SequenceGenerator:
         batch_size, seq_len = x.size()
         device = x.device
 
+        # Ensure batch_size does not exceed available trees
+        if batch_size > len(self.score_fn.trees):
+            print(f"[WARNING] Truncating batch from {batch_size} to {len(self.score_fn.trees)}")
+            x = x[:len(self.score_fn.trees)]  # Trim input to match trees
+            batch_size = len(self.score_fn.trees)
+        
+        print("trees num:" + str(len(self.score_fn.trees)))
+        print("batchsize num:" + str(batch_size))
+
         # Expand input to beam size
         x = x.unsqueeze(1).repeat(1, beam_width, 1)  # (batch_size, beam_width, seq_len)
         x = x.view(batch_size * beam_width, seq_len)  # Flattened for model input
 
         # Init score tensor
-        beam_scores = torch.zeros(batch_size, beam_width, device=device)
-        beam_scores[:, 1:] = -float("inf")  # Only keep the first beam in the beginning
+        beam_scores = torch.full((batch_size, beam_width), -float("inf"), device=device)
+        beam_scores[:, 0] = 0  # Only keep the first beam in the beginning
         beam_scores = beam_scores.view(-1)  # (batch_size * beam_width)
 
         finished = torch.zeros(batch_size * beam_width, dtype=torch.bool, device=device)
 
         for step in range(self.max_length - seq_len):
-            print(f"[Debug] x shape: {x.shape}")
-            logits = self.score_fn(x)
-            print(f"[Debug] logits shape: {logits.shape}")
+            #print(f"[Debug] x shape: {x.shape}")
+            #print("is this thing on")
+            #logits = self.score_fn(x)
+            try:
+                logits = self.score_fn(x)
+            except Exception as e:
+                print(f"Error in score_fn: {e}")
+                print(f"Type of score_fn: {type(self.score_fn)}")
+                raise
+            #print(f"[Debug] logits shape: {logits.shape}")
             # Apply temperature and filtering
             logits = self._filter_logits(logits, temperature)
             logits = self._apply_repeat_penalty(logits, x, repeat_penalty)
@@ -241,14 +257,20 @@ class SequenceGenerator:
             # Get top-k beams
             top_scores, top_indices = total_scores.topk(beam_width, dim=-1)  # (batch_size, beam_width)
 
+           # print(f"[Debug] top_indices shape: {top_indices.shape}")
             # Compute beam origin and next tokens
             beam_indices = top_indices // logits.size(-1)
             next_tokens = top_indices % logits.size(-1)
+            
 
             # Update x: gather old beams and append new tokens
             x = x.view(batch_size, beam_width, -1)
             # x shape: (batch_size * beam_width, seq_len)
             x = x.view(batch_size, beam_width, -1)  # (batch, beam, seq_len)
+            #print(f"[Debug] x shape at step {step}: {x.shape}")
+            #print(f"[Debug] top_indices: {top_indices}")
+            #print(f"[Debug] beam_indices: {beam_indices}")
+            #print(f"[Debug] next_tokens shape: {next_tokens.shape}")
 
             new_sequences = []
             for b in range(batch_size):
@@ -258,6 +280,7 @@ class SequenceGenerator:
                 next_tok = next_tokens[b].unsqueeze(1)  # shape: (beam_width, 1)
                 new_seq = torch.cat([selected_seqs, next_tok], dim=1)  # (beam_width, seq_len+1)
                 new_sequences.append(new_seq)
+                
 
             x = torch.stack(new_sequences, dim=0)  # (batch_size, beam_width, seq_len+1)
 
@@ -356,6 +379,10 @@ class SequenceGenerator:
             if seq is a single sequence, return a tensor of same shape with sequence truncated at EOS
             if seq is a batch of sequences, return a list of tensors with each sequence truncated at first EOS
         """
+        #print(seq.shape)
+        #print(seq)
+        #print(tokenizer.decode(seq[0].tolist()))
+#
         # Handle single sequence case
         if seq.dim() == 1:
             eos_indices = (seq == tokenizer.eos_id).nonzero()
