@@ -95,7 +95,17 @@ class ASRDataset(Dataset):
         self.fbank_files = sorted(os.listdir(self.fbank_dir))
         
         # TODO: Take subset
-        subset_size      = int(self.config['subset'])
+        #subset_size      = int(self.config['subset'])
+        subset_val = float(self.config['subset'])  # Get as float first
+
+        if 0 < subset_val <= 1.0:  # Percentage mode
+            subset_size = int(len(self.fbank_files) * subset_val)
+        elif subset_val > 1:  # Absolute count mode
+            subset_size = int(subset_val)
+        else:  # subset_val == 0 or negative
+            subset_size = len(self.fbank_files)  # Load all
+
+        self.fbank_files = self.fbank_files[:subset_size]
         self.fbank_files = self.fbank_files[:(subset_size)] if subset_size > 0 else self.fbank_files
         
         # TODO: Get the number of samples in the dataset  
