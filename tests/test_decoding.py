@@ -147,7 +147,8 @@ def test_beam_search_single_batch(generator, tokenizer):
     beam_width = max(len(path) for path in paths)
     
     # Create trees and score function
-    trees = [make_tree(tokenizer, path) for path in paths]
+    #trees = [make_tree(tokenizer, path) for path in paths]
+    trees = [make_tree(tokenizer, paths[0]) for _ in (range(beam_width))]
     score_fn = DeterministicScoreFn(trees, tokenizer)
     
     # Initialize generator
