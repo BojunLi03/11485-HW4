@@ -27,7 +27,7 @@ class ScaledDotProductAttention:
         
         # Calculate attention scores: (N, ..., H, L, S)
         # (N, ..., H, L, E) @ (N, ..., H, E, S) -> (N, ..., H, L, S)
-        scaled_dot_product = Q @ (np.swapaxes(K, -2, -1)) / np.sqrt(Q.shape[-1])
+        scaled_dot_product = Q @ (np.moveaxis(K, -2, -1)) / np.sqrt(Q.shape[-1])
     
         # Apply mask before softmax if provided
         # If mask is not None, add -self.eps to the attention scores for positions to ignore
@@ -62,7 +62,7 @@ class ScaledDotProductAttention:
         
         # Calculate gradients for attention scores
         # (N, ..., H, L, Ev) @ (N, ..., H, Ev, S) -> (N, ..., H, L, S)
-        d_attention_scores = d_output @ np.swapaxes(self.V, -2, -1)
+        d_attention_scores = d_output @ np.moveaxis(self.V, -2, -1)
         d_scaled_dot_product = self.softmax.backward(d_attention_scores)
         
         # Scale gradients by sqrt(d_k)
@@ -72,7 +72,7 @@ class ScaledDotProductAttention:
         # (N, ..., H, L, S) @ (N, ..., H, S, E) -> (N, ..., H, L, E)   
         d_Q = d_scaled_dot_product @ self.K
         # (N, ..., H, L, S) @ (N, ..., H, L, E) -> (N, ..., H, S, E)
-        d_K = np.swapaxes(d_scaled_dot_product, -2, -1) @ self.Q
+        d_K = np.moveaxis(d_scaled_dot_product, -2, -1) @ self.Q
 
         return d_Q, d_K, d_V
     
