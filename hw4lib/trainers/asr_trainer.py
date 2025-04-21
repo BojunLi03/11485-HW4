@@ -58,14 +58,14 @@ class ASRTrainer(BaseTrainer):
         super().__init__(model, tokenizer, config, run_name, config_file, device)
 
         # TODO: Implement the __init__ method
-        self.model = model
-        self.tokenizer = tokenizer
-        self.config = config
-        self.run_name = run_name
-        self.config_file = config_file
-        self.device = device if device is not None else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model.to(self.device)
-        self.scaler = torch.cuda.amp.GradScaler()
+        #self.model = model
+        #self.tokenizer = tokenizer
+        #self.config = config
+        #self.run_name = run_name
+        #self.config_file = config_file
+        #self.device = device if device is not None else torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        #self.model.to(self.device)
+        #self.scaler = torch.cuda.amp.GradScaler()
         self.debug_output = True
 
         # TODO: Initialize CE loss
@@ -141,7 +141,7 @@ class ASRTrainer(BaseTrainer):
             targets_golden = targets_golden.to(self.device)
             feat_lengths = feat_lengths.to(self.device)
             transcript_lengths = transcript_lengths.to(self.device)
-            self.model.to(self.device)
+            #self.model.to(self.device)
             seq_out, curr_att, ctc_inputs = self.model(
                 feats, 
                 targets_shifted, 
@@ -202,7 +202,7 @@ class ASRTrainer(BaseTrainer):
 
             # Only update weights after accumulating enough gradients
             if (i + 1) % self.config['training']['gradient_accumulation_steps'] == 0:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
+                #torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=5.0)
 
                 self.scaler.step(self.optimizer)
                 if not isinstance(self.scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
