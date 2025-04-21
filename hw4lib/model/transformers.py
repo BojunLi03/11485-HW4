@@ -379,10 +379,10 @@ class EncoderDecoderTransformer(nn.Module):
         # TODO: Apply normalization
         x_enc = self.encoder_norm(x_enc)
         # TODO: Project to CTC logits
-        ctc_logits = self.ctc_head(x_enc.permute(1, 0, 2)) # (batch_size, src_len, d_model) -> (src_len, batch_size, num_classes)
+        #ctc_logits = self.ctc_head(x_enc.permute(1, 0, 2)) # (batch_size, src_len, d_model) -> (src_len, batch_size, num_classes)
 
-        # ctc_logits = self.ctc_head(x_enc)
-        # ctc_logits = ctc_logits.transpose(0, 1)
+        ctc_logits = self.ctc_head(x_enc)
+        ctc_logits = ctc_logits.transpose(0, 1)
         # TODO: Return the encoded representation, padding mask, running attention weights, and CTC inputs (see docstring)
         ctc_inputs = {
             'log_probs': ctc_logits,#.transpose(0,1),
