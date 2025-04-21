@@ -121,7 +121,7 @@ class CrossAttentionLayer(nn.Module):
         # TODO: Implement __init__
         
         # TODO: Initialize the multi-head attention mechanism (use nn.MultiheadAttention)
-        self.mha = nn.MultiheadAttention(embed_dim=d_model, num_heads=num_heads, dropout=dropout)#, batch_first=True)
+        self.mha = nn.MultiheadAttention(embed_dim=d_model, num_heads=num_heads, dropout=dropout, batch_first=True)
         
         # TODO: Initialize the normalization layer (use nn.LayerNorm)
         self.norm = nn.LayerNorm(d_model)
@@ -161,8 +161,8 @@ class CrossAttentionLayer(nn.Module):
         x_normalized = self.norm(x)
 
         ### jUst in case
-        x = x.transpose(0, 1)
-        y = y.transpose(0, 1)
+        #x = x.transpose(0, 1)
+        #y = y.transpose(0, 1)
 
         #attn_output, weights = self.mha(x_normalized, y, y, key_padding_mask=key_padding_mask)
         x, attn_weights = self.mha(
@@ -172,7 +172,7 @@ class CrossAttentionLayer(nn.Module):
             attn_mask=attn_mask,
             average_attn_weights=True
         )
-        x = x.transpose(0, 1)
+        #x = x.transpose(0, 1)
         x = residual + self.dropout(x)
         return x, attn_weights
         #return residual + self.dropout(attn_output), weights

@@ -289,7 +289,7 @@ class EncoderDecoderTransformer(nn.Module):
 
         # TODO: Create source and target embeddings and other layers
         # Use SpeechEmbedding class to create the source embedding
-        self.source_embedding = SpeechEmbedding(input_dim, d_model, time_reduction, reduction_method) # Source embedding
+        self.source_embedding = SpeechEmbedding(input_dim, d_model, time_reduction, reduction_method, dropout = dropout) # Source embedding
 
 
         # TODO: Create the target embedding
@@ -381,6 +381,8 @@ class EncoderDecoderTransformer(nn.Module):
         # TODO: Project to CTC logits
         ctc_logits = self.ctc_head(x_enc.permute(1, 0, 2)) # (batch_size, src_len, d_model) -> (src_len, batch_size, num_classes)
 
+        # ctc_logits = self.ctc_head(x_enc)
+        # ctc_logits = ctc_logits.transpose(0, 1)
         # TODO: Return the encoded representation, padding mask, running attention weights, and CTC inputs (see docstring)
         ctc_inputs = {
             'log_probs': ctc_logits,#.transpose(0,1),
