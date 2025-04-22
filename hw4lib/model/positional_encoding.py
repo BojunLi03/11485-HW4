@@ -44,19 +44,18 @@ class PositionalEncoding(nn.Module):
         """
         # TODO: Implement create_pe_table
         #raise NotImplementedError # Remove once implemented
-        position = torch.arange(max_len).unsqueeze(1)  # (max_len, 1)
-        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
+        pos = torch.arange(max_len).unsqueeze(1)  # (max_len, 1)
+        div = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
         
         pe = torch.zeros(max_len, d_model)
-        pe[:, 0::2] = torch.sin(position * div_term)  # even indices
-        pe[:, 1::2] = torch.cos(position * div_term)  # odd indices
+        pe[:, 0::2] = torch.sin(div * pos)  # even indices
+        pe[:, 1::2] = torch.cos(div * pos)  # odd indices
         
         # Add batch dimension and register buffer
-        pe = pe.unsqueeze(0)
 
         #NotImplementedError
         # Register as buffer to save with model state
-        self.register_buffer('pe', pe)
+        self.register_buffer('pe', pe.unsqueeze(0))
         
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

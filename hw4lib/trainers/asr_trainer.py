@@ -419,13 +419,13 @@ class ASRTrainer(BaseTrainer):
             # Default config (greedy search)
             recognition_config = {
                 'num_batches': 5,
-                'beam_width': 1,
+                'beam_width': 3,
                 'temperature': 1.0,
                 'repeat_penalty': 1.0,
                 'lm_weight': 0.0,
                 'lm_model': None
             }
-            config_name = 'greedy'
+            config_name = 'beam4'
 
         if recognition_config.get('lm_model') is not None:
             recognition_config['lm_model'].eval()
@@ -480,8 +480,7 @@ class ASRTrainer(BaseTrainer):
                 # TODO: Generate sequences
                 if recognition_config['beam_width'] > 1:
                     # TODO: If you have implemented beam search, generate sequences using beam search
-                    seqs, scores = NotImplementedError, NotImplementedError
-                    raise NotImplementedError # Remove if you implemented the beam search method
+                    seqs, scores = generator.generate_beam(prompts, recognition_config['beam_width'], recognition_config['temperature'], recognition_config['repeat_penalty'])
                     # Pick best beam
                     seqs = seqs[:, 0, :]
                     scores = scores[:, 0]
